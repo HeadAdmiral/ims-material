@@ -1,38 +1,61 @@
 <template>
-  <v-app>
-    <v-toolbar app>
-      <v-toolbar-title class="headline text-uppercase">
-        <span>Vuetify</span>
-        <span class="font-weight-light">MATERIAL DESIGN</span>
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn
-        flat
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-      >
-        <span class="mr-2">Latest Release</span>
-      </v-btn>
-    </v-toolbar>
+  <div>
+    <toolbar></toolbar>
 
-    <v-content>
-      <HelloWorld/>
-    </v-content>
-  </v-app>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
+  import Toolbar from '@/components/layout/Toolbar.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Toolbar
   },
   data () {
     return {
       //
     }
-  }
+  },
 }
 </script>
+
+<style lang="scss">
+  html {
+    overflow-y: paged-x!important;
+  }
+
+  #nav {
+
+    /* Hides the border around list group items in the navigation drawer */
+    .v-list__group:after, .v-list__group:before {
+      /*content: none;*/
+      /*padding-top: 56px!important;*/
+    }
+
+  }
+
+
+  /* total width */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    border-radius: 8px;
+  }
+
+  /* background of the scrollbar except button or resizer */
+  ::-webkit-scrollbar-track {
+    background: #e1e1e1;
+  }
+
+  /* scrollbar itself */
+  ::-webkit-scrollbar-thumb {
+    background: #757575;
+    border-radius: 8px;
+  }
+
+  /* set button(top and bottom of the scrollbar) */
+  ::-webkit-scrollbar-button {display:none}
+
+</style>
