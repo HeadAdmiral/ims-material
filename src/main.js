@@ -8,14 +8,8 @@ import 'vuetify/dist/vuetify.min.css'
 // @ts-ignore
 import database from './firebaseInit.js'
 import firebase from 'firebase'
-
-Vue.use(Vuetify, {
-  theme: {
-    dpGreen: "#82BC00",
-    dpOrange: "#F89728",
-    dpBlack: "#333",
-  }
-});
+import './registerServiceWorker'
+import vuetify from './plugins/vuetify'
 
 Vue.config.productionTip = false;
 
@@ -29,6 +23,7 @@ firebase.auth().onAuthStateChanged((user) => {
     app = new Vue({
       router,
       store,
+      vuetify,
       render: h => h(App)
     }).$mount('#app');
   }

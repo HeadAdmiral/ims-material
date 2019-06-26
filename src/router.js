@@ -17,12 +17,12 @@ export default new Router({
     {
       path: '/register',
       name: 'Register',
-      component: () => import('./views/Registration.vue')
+      component: () => import('./views/auth/Registration.vue')
     },
     {
       path: '/login',
       name: 'Login',
-      component: () => import('./views/Login.vue')
+      component: () => import('./views/auth/Login.vue')
     },
     {
       path: '/store-selector',
@@ -32,12 +32,22 @@ export default new Router({
     {
       path: '/:storeId/management/store',
       name: 'Store Management',
-      component: () => import('./views/StoreManagement.vue')
+      component: () => import('./views/administration/StoreManagement.vue')
     },
     {
       path: '/:storeId/management/user',
       name: 'User Management',
-      component: () => import('./views/UserManagement.vue')
+      component: () => import('./views/administration/UserManagement.vue')
+    },
+    {
+      path: '/:storeId/settings',
+      name: 'Settings',
+      component: () => import('./views/misc/Settings.vue')
+    },
+    {
+      path: '/:storeId/changelog',
+      name: 'Changelog',
+      component: () => import('./views/misc/Changelog.vue')
     }
     // {
     //   path: '/about',

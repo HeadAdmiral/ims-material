@@ -15,7 +15,7 @@
                 Close
             </v-btn>
         </v-snackbar>
-        <v-container grid-list-md text-xs fluid>
+        <v-container grid-list-md text-xs fluid class="grey lighten-4">
             <v-layout row wrap justify-center>
                 <v-flex xs4 xl3>
                     <v-toolbar color="info" dark extended class="text-xs-center">
@@ -73,7 +73,7 @@
                             </v-flex>
                         </v-form>
                         <v-card-actions>
-                            <v-btn color="info" @click="submit" :loading="loading" :disabled="loading" round block>Sign Up</v-btn>
+                            <v-btn color="info" @click="submit" :loading="loading" :disabled="loading" rounded block>Sign Up</v-btn>
                             <v-card-text class="text-xs-right pa-0 caption">
                                 <router-link to="/login" tag="span">
                                     <a class="grey--text text--darken-2" @click="">

@@ -92,7 +92,7 @@
             ></v-checkbox>
           </td>
           <td class="text-xs">{{ props.item.storeName }}</td>
-          <td class="text-xs">{{ props.item.managers }}</td>
+          <td class="text-xs">{{ props.item.managers || "None" }}</td>
           <td class="text-xs">{{ props.item.employees }}</td>
           <td class="text-xs">{{ props.item.createDate }}</td>
           <td class="text-xs">{{ props.item.state }}</td>
@@ -174,20 +174,7 @@ export default {
                 { text: 'Date Created', value: 'createDate' },
                 { text: 'State', value: 'state' },
                 ],
-            stores: [
-                // { storeName: 'Device Pitstop of Maple Grove',
-                //   managers: ['Seth Uscensky'],
-                //   employees: 0,
-                //   createDate: new Date().toLocaleString(),
-                //   state: 'MN',
-                // },
-                // { storeName: 'Device Pitstop of Minnetonka',
-                //     managers: ['Graham Reeder'],
-                //     employees: 0,
-                //     createDate: new Date(),
-                //     state: 'MN',
-                // },
-            ],
+            stores: [],
             pagination: {},
             selected: [],
             states: [

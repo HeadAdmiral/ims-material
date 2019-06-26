@@ -54,6 +54,9 @@
                 let storeName = store.storeName;
                 let storeId = storeName.substring(storeName.indexOf("of") + 3).toLowerCase().replace(/\s/g, '');
 
+                // TODO: Before calling setStoreDetails, set storeName in store.
+                // TODO: Get data from database and send it through setStoreDetails
+
                 this.$store.commit('setStore', {
                     storeId: storeId,
                     storeName: storeName

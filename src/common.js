@@ -5,6 +5,7 @@ export default {
     routeTo(route, name) {
         let goto = false;
 
+        /* Routes must have a matching route and name defined in Toolbar.vue in order to be processed */
         for (let n of this.$router.options.routes) {
             if (n.path === route || n.name === name) {
                 goto = true;
@@ -25,7 +26,7 @@ export default {
             console.log(message);
         }
     },
-    snackbar(type='normal', msg, duration) {
+    snackbar(type='normal', msg, duration=0) {
         let response = {
             alertType: type,
             alertMessage: msg,

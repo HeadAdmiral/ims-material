@@ -15,14 +15,13 @@
                 Close
             </v-btn>
         </v-snackbar>
-        <v-container grid-list-md text-xs fluid>
+        <v-container grid-list-md text-xs fluid class="grey lighten-4">
             <v-layout row wrap justify-center>
-                <v-flex xs4 xl3>
+                <v-flex xs12 sm6 md5 lg4 xl3>
                     <v-toolbar color="success" dark extended class="text-xs-center">
                         <v-toolbar-title class="text-xs-center headline mx-auto pt-3">Log in</v-toolbar-title>
                     </v-toolbar>
                     <v-card class="pa-4">
-<!--                        <v-card-text class="px-0 headline">Login</v-card-text>-->
                         <v-form ref="form" v-model="valid" @keyup.native.enter="submit">
                             <v-flex>
                                 <v-text-field
@@ -49,13 +48,15 @@
                             </a>
                         </v-card-text>
                         <v-card-actions class="pt-3 pr-0">
-                            <v-btn color="success" dark @click="submit" :loading="loading" :disabled="loading" class="px-3" round>Log In</v-btn>
+                            <v-btn color="success" dark @click="submit" :loading="loading" :disabled="loading" class="px-3" rounded>Log In</v-btn>
 <!--                            <v-btn flat color="secondary" @click="clear">Clear</v-btn>-->
                             <v-card-text class="text-xs-right pa-0 caption">
                                 <router-link to="/register" tag="span">
-                                    <a class="text-xs-right grey--text text--darken-2">
-                                        Don't have an account? <strong style="color: #2196F3">Sign up</strong>
-                                    </a>
+                                    <v-flex>
+                                        <a class="text-xs-right grey--text text--darken-2">
+                                            Don't have an account? <strong style="color: #2196F3">Sign up</strong>
+                                        </a>
+                                    </v-flex>
                                 </router-link>
                             </v-card-text>
                         </v-card-actions>
@@ -108,14 +109,25 @@
             }
         },
         methods: {
+            isMobile() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            },
             submit() {
                 let self = this;
                 let valid = this.$refs.form.validate();
+                let persistenceType;
 
                 if (valid) {
                     self.loading = true;
 
-                    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                    if (this.isMobile) {
+                        persistenceType = firebase.auth.Auth.Persistence.LOCAL;
+                    }
+                    else {
+                        persistenceType = firebase.auth.Auth.Persistence.SESSION;
+                    }
+
+                    firebase.auth().setPersistence(persistenceType)
                         .then(() => {
                             return firebase.auth().signInWithEmailAndPassword(this.email, this.password)
                                 .then(() => {
