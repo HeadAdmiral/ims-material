@@ -17,7 +17,7 @@
         </v-snackbar>
         <v-container grid-list-md text-xs fluid class="grey lighten-4">
             <v-layout row wrap justify-center>
-                <v-flex xs12 sm6 md5 lg4 xl3>
+                <v-flex xs12 sm6 md5 lg3 xl2>
                     <v-toolbar color="success" dark extended class="text-xs-center">
                         <v-toolbar-title class="text-xs-center headline mx-auto pt-3">Log in</v-toolbar-title>
                     </v-toolbar>

@@ -94,7 +94,8 @@ export default new Vuex.Store({
     },
     mutations: {
         setCachedUsers: (state, payload) => {
-            state.storeDetails.users = payload.users;
+            console.log(payload.payload);
+            state.storeDetails.users = payload.payload;
         },
         setUser: (state, payload) => {
             state.user = payload.user;
@@ -294,6 +295,12 @@ export default new Vuex.Store({
         setSettings: (context, payload) => {
             context.commit({
                 type: 'setSettings',
+                payload: payload
+            })
+        },
+        setCachedUsers: (context, payload) => {
+            context.commit({
+                type: 'setCachedUsers',
                 payload: payload
             })
         }

@@ -155,16 +155,6 @@
                                     </v-card-actions>
                                 </v-card>
                             </v-dialog>
-                            <v-btn icon @click="$store.state.storeDetails.users = {}">
-                                <v-icon>
-                                    remove
-                                </v-icon>
-                            </v-btn>
-                            <v-btn icon @click="hi">
-                                <v-icon>
-                                    help_outline
-                                </v-icon>
-                            </v-btn>
                         </v-toolbar>
                     </template>
                     <template v-slot:item.action="{ item }">
@@ -203,7 +193,7 @@
     import common from '../../common.js'
     import firebase from 'firebase'
     import database from '../../firebaseInit.js'
-    import {mapGetters} from 'vuex'
+    import {mapActions, mapGetters} from 'vuex'
 
     export default {
         name: "UserManagement",
@@ -279,9 +269,9 @@
             }
         },
         methods: {
-            hi() {
-                console.log(this.$store.state.storeDetails.users);
-            },
+            ...mapActions([
+                'setCachedUsers'
+            ]),
             selectStore() {
                 this.selectedStore = this.getStores[this.selectedStoreIndex];
                 this.search = !this.search;
@@ -594,109 +584,48 @@
             },
             findUsers() {
                 let self = this;
-                let users = this.getCachedUsers;
 
-                // TODO: Create a setCachedUsers function inside of the vuex store so that the found users are persisted.
-                // Then you should be able to work on the if-statement below.
+                database.collection('users').onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(function(change) {
+                        let doc = change.doc.data();
 
-                // If there are users that are already cached, do not pull everything from the database
-                if (Object.keys(users).length) {
-
-                    // Iterate through each user in users
-                    // Find the user with the newest cacheDate
-                    // Get users from the database where the date they were created is newer than the cacheDate
-                    // Add them to the vuex store
-
-                    let newest = new Date(0);
-
-                    console.log(users);
-                    console.log(Object.values(users));
-                    console.log(Object.keys(users));
-
-                    for (let i = 0; i < Object.keys(users).length; i++) {
-                        console.log(Object.keys(users)[i]);
-                        for (let j = 0; j < users[i].users; j++) {
-                            console.log((users[i].users[j].cachedDate > newest))
-                        }
-                    }
-
-                    /* TODO: Don't forget that you're also gonna need to return users at the bottom of this method */
-                }
-
-                // There are no cached users
-                else {
-                    console.log(users);
-                    database.collection('users').onSnapshot(snapshot => {
-                        snapshot.docChanges().forEach(function (change) {
-                            let doc = change.doc.data();
-
+                        if (self.getStoreIndex(doc) !== -1) {
                             // Add new elements to the array
                             if (change.type === "added") {
-                                doc.stores.forEach((store) => {
-                                    if (store.storeName === self.selectedStore) {
+                                self.users.push(doc);
 
-                                        // Check if users has a property equal to (self.selectedStore as an id) (aka the store exists in the store-containing-object)
-                                        if (users.hasOwnProperty(self.createDocId(self.selectedStore))) {
-                                            // If so, iterate through it
-                                            for (let i = 0; i < users.length; i++) {
-                                                // Find the store with storeName equal to self.selectedStore and then add a user to it's array of users
-                                                if (users[i].storeName === self.storeName) {
-                                                    users[i].users.push({
-                                                        name: doc.firstName + " " + doc.lastName,
-                                                        createdDate: doc.createdDate.toDate().toLocaleString(),
-                                                        email: doc.email,
-                                                        stores: doc.stores,
-                                                        user_id: doc.user_id,
-                                                        accessLevel: self.parseAccessLevel(doc),
-                                                        isActive: self.parseActive(doc),
-                                                        cachedDate: new Date()
-                                                    })
-                                                }
-                                            }
-                                        }
-                                        // If not, add a store with storeName equal to (self.selectedStore as an id)
-                                        else {
-                                            users[self.createDocId(self.selectedStore)] = { storeName: self.selectedStore, users: [] };
-                                            users[self.createDocId(self.selectedStore)].users.push({
-                                                name: doc.firstName + " " + doc.lastName,
-                                                createdDate: doc.createdDate.toDate().toLocaleString(),
-                                                email: doc.email,
-                                                stores: doc.stores,
-                                                user_id: doc.user_id,
-                                                accessLevel: self.parseAccessLevel(doc),
-                                                isActive: self.parseActive(doc),
-                                                cachedDate: new Date()
-                                            })
-                                        }
-                                    }
-                                })
+                                let user = self.users[self.users.indexOf(doc)];
+                                user.name = user.firstName + " " + user.lastName;
+                                user.createdDate = doc.createdDate.toDate().toLocaleString();
+                                user.accessLevel = self.parseAccessLevel(user);
+                                user.isActive = self.parseActive(user);
                             }
 
-                            // // Update elements in the array
-                            // else if (change.type === "modified") {
-                            //     let modification = false;
-                            //
-                            //     doc.stores.forEach((store) => {
-                            //         if (store.storeName === self.selectedStore) {
-                            //             self.users = self.users.filter(user => user.user_id !== doc.user_id)
-                            //             self.users.push(doc);
-                            //         }
-                            //         modification = true;
-                            //     });
-                            //
-                            //     if (modification === false) {
-                            //         self.users = self.users.filter(user => user.user_id !== doc.user_id);
-                            //     }
-                            // }
+                            // Update elements in the array
+                            else if (change.type === "modified") {
+                                let modification = false;
 
-                            // // Remove elements from the array
-                            // else if (change.type === "removed") {
-                            //     self.users = self.users.filter(e => e.email !== doc.email)
-                            // }
-                        });
-                    })
-                    console.log(users);
-                }
+                                doc.stores.forEach((store) => {
+                                    if (store.storeName === self.selectedStore) {
+                                        self.users = self.users.filter(user => user.user_id !== doc.user_id)
+                                        self.users.push(doc);
+                                    }
+                                    modification = true;
+                                });
+
+                                if (modification === false) {
+                                    self.users = self.users.filter(user => user.user_id !== doc.user_id);
+                                }
+                            }
+
+                            // Remove elements from the array
+                            else if (change.type === "removed") {
+                                self.users = self.users.filter(e => e.email !== doc.email)
+                            }
+                        }
+
+                    });
+                })
             }
         },
         computed: {
@@ -759,7 +688,6 @@
         mounted() {
             let self = this;
 
-
             this.routeTo = common.routeTo;
             this.log = common.log;
             this.snackbar = common.snackbar;
@@ -776,9 +704,6 @@
                     this.alert.active = false;
                 }, msg.duration * 1000);
             })
-        },
-        created() {
-            console.log("TODO: USER MANAGEMENT -- ADD CACHE CHECK");
         }
     }
 </script>

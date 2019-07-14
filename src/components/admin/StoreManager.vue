@@ -1,138 +1,323 @@
 <template>
   <v-app id="store-manager">
-    <v-card>
-      <v-toolbar flat color="dpBlack" dark>
-        <v-toolbar-title>
-          Store Management
-        </v-toolbar-title>
-      </v-toolbar>
-      <v-dialog v-model="dialog" max-width="500px">
+    <v-snackbar
+            v-model="alert.active"
+            top
+            :color="alert.color"
+            :timeout="0"
+    >
+      {{ alert.message }}
+      <v-btn
+              :color="alert.btnColor"
+              text
+              @click="alert.active = !alert.active"
+      >
+        Close
+      </v-btn>
+    </v-snackbar>
+    <v-layout row justify-center>
+      <v-dialog v-model="deleteDialog" persistent max-width="290">
+        <template v-slot:activator="{ on }"></template>
         <v-card>
-          <v-card-title>
-            <span class="headline">{{ formTitle }}</span>
-          </v-card-title>
-
-          <v-card-text>
-            <v-container grid-list-md>
-              <v-layout wrap>
-                <v-flex>
-                  <v-text-field
-                    v-model="editedItem.storeName"
-                    label="Store Name"
-                    prepend-icon="store"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex v-if="editedIndex === -1">
-                  <v-menu
-                    v-model="menu"
-                    :close-on-content-click="false"
-                    lazy
-                    transition="scale-transition"
-                    offset-y
-                    full-width
-                    max-width="290px"
-                    min-width="290px"
-                  >
-                    <template v-slot:activator="{ on }">
-                      <v-text-field
-                        v-model="editedItem.createDate"
-                        label="Date Created"
-                        hint="MM/DD/YYYY format"
-                        persistent-hint
-                        prepend-icon="event"
-                        readonly
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="editedItem.createDate"
-                      no-title
-                      @input="menu = false"
-                      :min="currentDate"
-                      :max="currentDate"
-                    ></v-date-picker>
-                  </v-menu>
-                </v-flex>
-                <v-flex>
-                  <v-select
-                    v-model="editedItem.state"
-                    :items="states"
-                    menu-props="auto"
-                    label="State"
-                    hide-details
-                    prepend-icon="map"
-                    single-line
-                  ></v-select>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-card-text>
-
+          <v-card-title class="title font-weight-medium">Remove User?</v-card-title>
+          <v-card-text>This user will be removed from the store. Any entries they have made will not be removed.</v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
-            <v-btn color="blue darken-1" flat @click="save">Save</v-btn>
+            <v-btn color="googleBlue600" class="caption" text @click="deleteDialog = false">Cancel</v-btn>
+            <v-btn color="googleBlue600" class="caption" text @click="confirmDelete">Remove</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-data-table
-        v-model="selected"
-        :headers="headers"
-        :items="stores"
-        item-key="storeName"
-        select-all
-        class="elevation-1"
-      >
-        <template v-slot:items="props">
-          <td>
-            <v-checkbox
-              v-model="props.selected"
-              primary
-              hide-details
-            ></v-checkbox>
-          </td>
-          <td class="text-xs">{{ props.item.storeName }}</td>
-          <td class="text-xs">{{ props.item.managers || "None" }}</td>
-          <td class="text-xs">{{ props.item.employees }}</td>
-          <td class="text-xs">{{ props.item.createDate }}</td>
-          <td class="text-xs">{{ props.item.state }}</td>
-        </template>
-      </v-data-table>
-    </v-card>
-    <v-layout>
-      <v-speed-dial
-        class="mb-5 mr-5"
-        v-model="fab"
-        :top="top"
-        :bottom="bottom"
-        :right="right"
-        :left="left"
-        :direction="direction"
-        :open-on-hover="hover"
-        :transition="transition"
-        fixed
-      >
-        <template v-slot:activator>
-          <v-btn v-model="fab" color="dpOrange" dark fab>
-            <v-icon>store</v-icon>
-            <v-icon>close</v-icon>
-          </v-btn>
-        </template>
-        <v-btn fab dark small color="green" @click="dialog = !dialog">
-          <v-icon>add</v-icon>
-        </v-btn>
-        <v-btn
-          fab
-          dark
-          small
-          color="red"
-          @click="deleteItem()"
-          v-if="selected.length > 0"
-        >
-          <v-icon>delete</v-icon>
-        </v-btn>
-      </v-speed-dial>
     </v-layout>
+    <v-container>
+      <v-card>
+        <v-data-table
+                :headers="headers"
+                :items="users"
+                sort-by="name"
+                class="elevation-1"
+        >
+          <template v-slot:top>
+            <v-toolbar flat color="white">
+              <v-toolbar-title>User Management</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-slide-x-reverse-transition>
+                <v-flex xs4 xl3 pr-2 d-flex v-if="!isMobile && search">
+                  <v-select
+                          :items="getStores"
+                          label="Select a Store"
+                          solo
+                          color="dpGreen"
+                          v-model="selectedStore"
+                          @change="findUsers"
+                          style="position: relative; top: 15px;"
+                  ></v-select>
+                </v-flex>
+              </v-slide-x-reverse-transition>
+              <v-dialog v-model="search" scrollable v-if="isMobile && search">
+                <v-card>
+                  <v-card-title class="title font-weight-medium">Select a Store</v-card-title>
+                  <v-card-text style="max-height: 300px;">
+                    <v-radio-group v-model="selectedStoreIndex" column @change="selectStore">
+                      <v-radio v-for="(store, i) in getStores" :label="store" color="googleBlue600"></v-radio>
+                    </v-radio-group>
+                  </v-card-text>
+                </v-card>
+              </v-dialog>
+              <v-btn icon v-model="search" @click="search = !search">
+                <v-icon>
+                  search
+                </v-icon>
+              </v-btn>
+
+              <v-dialog v-model="dialog" max-width="500px">
+                <template v-slot:activator="{ on }">
+                  <v-btn icon class="caption" v-on="on" :disabled="!selectedStore">
+                    <v-icon>
+                      add
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-card-title>
+                    <span class="headline">{{ formTitle }}</span>
+                  </v-card-title>
+
+                  <v-card-text>
+                    <v-container grid-list-md>
+                      <v-layout wrap>
+                        <v-flex xs12>
+                          <v-text-field
+                                  v-model="editedItem.email"
+                                  label="Email Address"
+                                  prepend-icon="mail_outline"
+                                  :rules="[rules.required, rules.email]"
+                                  :disabled="editedIndex !== -1"
+                                  browser-autocomplete="turnedOff"
+                          ></v-text-field>
+                        </v-flex>
+                        <v-flex v-if="editedIndex === -1" xs12>
+                          <v-menu
+                                  v-model="menu"
+                                  :close-on-content-click="false"
+                                  transition="scale-transition"
+                                  offset-y
+                                  full-width
+                                  max-width="290px"
+                                  min-width="290px"
+                          >
+                            <template v-slot:activator="{ on }">
+                              <v-text-field
+                                      v-model="editedItem.createDate"
+                                      label="Date Created"
+                                      hint="MM/DD/YYYY format"
+                                      persistent-hint
+                                      prepend-icon="event"
+                                      readonly
+                                      v-on="on"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                                    v-model="editedItem.createDate"
+                                    no-title
+                                    @input="menu = false"
+                                    :min="currentDate"
+                                    :max="currentDate"
+                            ></v-date-picker>
+                          </v-menu>
+                        </v-flex>
+                        <v-flex xs12>
+                          <v-select
+                                  v-model="editedItem.accessLevel"
+                                  :items="accessLevels"
+                                  item-text="name"
+                                  item-disabled="disabled"
+                                  menu-props="auto"
+                                  label="Access Level"
+                                  hide-details
+                                  prepend-icon="security"
+                                  :rules="[rules.required]"
+                                  single-line
+                          ></v-select>
+                        </v-flex>
+                        <v-flex v-if="editedIndex !== -1" xs12 mt-4>
+                          <v-checkbox v-model="editedItem.isActive" label="Active Employee"></v-checkbox>
+                        </v-flex>
+                      </v-layout>
+                    </v-container>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn text color="grey" class="caption" @click="close">Cancel</v-btn>
+                    <v-btn color="googleBlue600" class="caption" text @click="save" v-if="editedIndex === -1">Save</v-btn>
+                    <v-btn color="googleBlue600" class="caption" text @click="update" v-else>Update</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-toolbar>
+          </template>
+          <template v-slot:item.action="{ item }">
+            <v-icon
+                    small
+                    class="mr-2"
+                    @click="editItem(item)"
+                    :disabled="higherAccessLevel(item)"
+            >
+              edit
+            </v-icon>
+            <v-icon
+                    small
+                    @click="promptDelete(item)"
+                    :disabled="higherAccessLevel(item)"
+            >
+              delete
+            </v-icon>
+          </template>
+          <template v-slot:no-data>
+            <v-layout justify-center>
+              <v-flex shrink py-4>
+                <v-card-text>
+                  Press the <v-icon small>search</v-icon> button to search for a store!
+                </v-card-text>
+              </v-flex>
+            </v-layout>
+          </template>
+        </v-data-table>
+      </v-card>
+    </v-container>
+<!--    <v-card>-->
+<!--      <v-toolbar flat color="dpBlack" dark>-->
+<!--        <v-toolbar-title>-->
+<!--          Store Management-->
+<!--        </v-toolbar-title>-->
+<!--      </v-toolbar>-->
+<!--      <v-dialog v-model="dialog" max-width="500px">-->
+<!--        <v-card>-->
+<!--          <v-card-title>-->
+<!--            <span class="headline">{{ formTitle }}</span>-->
+<!--          </v-card-title>-->
+
+<!--          <v-card-text>-->
+<!--            <v-container grid-list-md>-->
+<!--              <v-layout wrap>-->
+<!--                <v-flex>-->
+<!--                  <v-text-field-->
+<!--                    v-model="editedItem.storeName"-->
+<!--                    label="Store Name"-->
+<!--                    prepend-icon="store"-->
+<!--                  ></v-text-field>-->
+<!--                </v-flex>-->
+<!--                <v-flex v-if="editedIndex === -1">-->
+<!--                  <v-menu-->
+<!--                    v-model="menu"-->
+<!--                    :close-on-content-click="false"-->
+<!--                    lazy-->
+<!--                    transition="scale-transition"-->
+<!--                    offset-y-->
+<!--                    full-width-->
+<!--                    max-width="290px"-->
+<!--                    min-width="290px"-->
+<!--                  >-->
+<!--                    <template v-slot:activator="{ on }">-->
+<!--                      <v-text-field-->
+<!--                        v-model="editedItem.createDate"-->
+<!--                        label="Date Created"-->
+<!--                        hint="MM/DD/YYYY format"-->
+<!--                        persistent-hint-->
+<!--                        prepend-icon="event"-->
+<!--                        readonly-->
+<!--                        v-on="on"-->
+<!--                      ></v-text-field>-->
+<!--                    </template>-->
+<!--                    <v-date-picker-->
+<!--                      v-model="editedItem.createDate"-->
+<!--                      no-title-->
+<!--                      @input="menu = false"-->
+<!--                      :min="currentDate"-->
+<!--                      :max="currentDate"-->
+<!--                    ></v-date-picker>-->
+<!--                  </v-menu>-->
+<!--                </v-flex>-->
+<!--                <v-flex>-->
+<!--                  <v-select-->
+<!--                    v-model="editedItem.state"-->
+<!--                    :items="states"-->
+<!--                    menu-props="auto"-->
+<!--                    label="State"-->
+<!--                    hide-details-->
+<!--                    prepend-icon="map"-->
+<!--                    single-line-->
+<!--                  ></v-select>-->
+<!--                </v-flex>-->
+<!--              </v-layout>-->
+<!--            </v-container>-->
+<!--          </v-card-text>-->
+
+<!--          <v-card-actions>-->
+<!--            <v-spacer></v-spacer>-->
+<!--            <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>-->
+<!--            <v-btn color="blue darken-1" flat @click="save">Save</v-btn>-->
+<!--          </v-card-actions>-->
+<!--        </v-card>-->
+<!--      </v-dialog>-->
+<!--      <v-data-table-->
+<!--        v-model="selected"-->
+<!--        :headers="headers"-->
+<!--        :items="stores"-->
+<!--        item-key="storeName"-->
+<!--        class="elevation-1"-->
+<!--      >-->
+<!--        <template v-slot:items="props">-->
+<!--          <td>-->
+<!--            <v-checkbox-->
+<!--              v-model="props.selected"-->
+<!--              primary-->
+<!--              hide-details-->
+<!--            ></v-checkbox>-->
+<!--          </td>-->
+<!--          <td class="text-xs">{{ props.item.storeName }}</td>-->
+<!--          <td class="text-xs">{{ props.item.managers || "None" }}</td>-->
+<!--          <td class="text-xs">{{ props.item.employees }}</td>-->
+<!--          <td class="text-xs">{{ props.item.createDate }}</td>-->
+<!--          <td class="text-xs">{{ props.item.state }}</td>-->
+<!--        </template>-->
+<!--      </v-data-table>-->
+<!--    </v-card>-->
+<!--    <v-layout>-->
+<!--      <v-speed-dial-->
+<!--        class="mb-5 mr-5"-->
+<!--        v-model="fab"-->
+<!--        :top="top"-->
+<!--        :bottom="bottom"-->
+<!--        :right="right"-->
+<!--        :left="left"-->
+<!--        :direction="direction"-->
+<!--        :open-on-hover="hover"-->
+<!--        :transition="transition"-->
+<!--        fixed-->
+<!--      >-->
+<!--        <template v-slot:activator>-->
+<!--          <v-btn v-model="fab" color="dpOrange" dark fab>-->
+<!--            <v-icon>store</v-icon>-->
+<!--            <v-icon>close</v-icon>-->
+<!--          </v-btn>-->
+<!--        </template>-->
+<!--        <v-btn fab dark small color="green" @click="dialog = !dialog">-->
+<!--          <v-icon>add</v-icon>-->
+<!--        </v-btn>-->
+<!--        <v-btn-->
+<!--          fab-->
+<!--          dark-->
+<!--          small-->
+<!--          color="red"-->
+<!--          @click="deleteItem()"-->
+<!--          v-if="selected.length > 0"-->
+<!--        >-->
+<!--          <v-icon>delete</v-icon>-->
+<!--        </v-btn>-->
+<!--      </v-speed-dial>-->
+<!--    </v-layout>-->
   </v-app>
 </template>
 
