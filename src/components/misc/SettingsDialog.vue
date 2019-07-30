@@ -65,8 +65,8 @@
                                 </v-card-text>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="normalizeDialog">Cancel</v-btn>
-                                    <v-btn color="blue darken-1" text @click="updateUser">Update</v-btn>
+                                    <v-btn color="blue darken-1" text @click="normalizeDialog" class="caption">Cancel</v-btn>
+                                    <v-btn color="blue darken-1" text @click="updateUser" class="caption">Update</v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -191,7 +191,7 @@
             this.log = common.log;
             this.snackbar = common.snackbar;
 
-            this.$on('openAlert', (msg) => {
+            this.$on('openSnackbar', (msg) => {
                 this.alert = {
                     active: true,
                     color: msg.color,

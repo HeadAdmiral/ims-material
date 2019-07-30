@@ -11,6 +11,7 @@
                     :color="alert.btnColor"
                     flat
                     @click="alert.active = !alert.active"
+                    class="caption"
             >
                 Close
             </v-btn>
@@ -209,7 +210,7 @@
             this.log = common.log;
             this.snackbar = common.snackbar;
 
-            this.$on('openAlert', (msg) => {
+            this.$on('openSnackbar', (msg) => {
                 this.alert = {
                     active: true,
                     color: msg.color,

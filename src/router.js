@@ -10,11 +10,6 @@ export default new Router({
       name: '',
     },
     {
-      path: '/:storeId/dashboard',
-      name: 'Dashboard',
-      component: () => import('./views/Dashboard.vue')
-    },
-    {
       path: '/register',
       name: 'Register',
       component: () => import('./views/auth/Registration.vue')
@@ -30,14 +25,24 @@ export default new Router({
       component: () => import('./views/SelectCurrentStore.vue')
     },
     {
+      path: '/:storeId/management/user',
+      name: 'User Management',
+      component: () => import('./views/administration/UserManagement.vue')
+    },
+    {
       path: '/:storeId/management/store',
       name: 'Store Management',
       component: () => import('./views/administration/StoreManagement.vue')
     },
     {
-      path: '/:storeId/management/user',
-      name: 'User Management',
-      component: () => import('./views/administration/UserManagement.vue')
+      path: '/:storeId/dashboard',
+      name: 'Dashboard',
+      component: () => import('./views/Dashboard.vue')
+    },
+    {
+      path: '/:storeId/storestock',
+      name: 'Store Stock',
+      component: () => import('./views/core/StoreStock.vue')
     },
     {
       path: '/:storeId/settings',

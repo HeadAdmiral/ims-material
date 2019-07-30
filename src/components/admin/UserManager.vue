@@ -11,24 +11,23 @@
                     :color="alert.btnColor"
                     text
                     @click="alert.active = !alert.active"
+                    class="caption"
             >
                 Close
             </v-btn>
         </v-snackbar>
-        <v-layout row justify-center>
-            <v-dialog v-model="deleteDialog" persistent max-width="290">
-                <template v-slot:activator="{ on }"></template>
-                <v-card>
-                    <v-card-title class="title font-weight-medium">Remove User?</v-card-title>
-                    <v-card-text>This user will be removed from the store. Any entries they have made will not be removed.</v-card-text>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="googleBlue600" class="caption" text @click="deleteDialog = false">Cancel</v-btn>
-                        <v-btn color="googleBlue600" class="caption" text @click="confirmDelete">Remove</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </v-layout>
+        <v-dialog v-model="deleteDialog" persistent max-width="290">
+            <template v-slot:activator="{ on }"></template>
+            <v-card>
+                <v-card-title class="title font-weight-medium">Remove User?</v-card-title>
+                <v-card-text>This user will be removed from the store. Any entries they have made will not be removed.</v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="googleBlue600" class="caption" text @click="deleteDialog = false">Cancel</v-btn>
+                    <v-btn color="googleBlue600" class="caption" text @click="confirmDelete">Remove</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
         <v-container>
             <v-card>
                 <v-data-table
@@ -38,7 +37,7 @@
                         class="elevation-1"
                 >
                     <template v-slot:top>
-                        <v-toolbar flat color="white">
+                        <v-toolbar flat>
                             <v-toolbar-title>User Management</v-toolbar-title>
                             <v-spacer></v-spacer>
                             <v-slide-x-reverse-transition>
@@ -692,7 +691,7 @@
             this.log = common.log;
             this.snackbar = common.snackbar;
 
-            this.$on('openAlert', (msg) => {
+            this.$on('openSnackbar', (msg) => {
                 this.alert = {
                     active: true,
                     color: msg.color,

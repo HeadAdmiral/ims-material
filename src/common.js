@@ -52,6 +52,33 @@ export default {
                 response.btnColor = 'primary';
         }
 
+        this.$emit('openSnackbar', response);
+    },
+    alert(type="", msg, options={}) {
+        let response = {
+            alertType: type,
+            alertMessage: msg,
+            options: options
+        };
+
+        switch (type) {
+            case 'success':
+                response.color = '#4CAF50';
+                break;
+            case 'info':
+                response.color = '#2196F3';
+                break;
+            case 'warning':
+                response.color = '#FB8C00';
+                break;
+            case 'error':
+                response.color = '#FF5252';
+                break;
+            default:
+                response.color = '#323232';
+                response.btnColor = 'primary';
+        }
+
         this.$emit('openAlert', response);
     },
     getStoreId(storeName) {

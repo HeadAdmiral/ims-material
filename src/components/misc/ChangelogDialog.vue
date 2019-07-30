@@ -2,8 +2,8 @@
     <v-app>
         <v-container justify-center pb-5>
             <v-layout justify-center>
-                <v-flex xs8 pb-5>
-                    <div class="pb-5">
+                <v-flex xs8 py-5>
+                    <div class="py-5">
                         <h1 class="display-3">What's new</h1>
                         <br>
                         <p class="subheading">Learn about new additions, features, and tools that have appeared in the IMS</p>
@@ -209,12 +209,12 @@
                                 <br>
                                 <ul class="subheading">
                                     <li :class="{ 'grey--text text--darken-2' : !isDarkMode }">
-                                        Modified dropdowns to <strong :class="{ 'grey--text text--darken-4' : !isDarkMode }">adjust available options</strong> based on user input
+                                        Modified dropdowns to <strong :class="{ 'grey--text text--darken-4' : !isDarkMode }">adjust available options</strong> based on the input provided by the user
                                     </li>
                                 </ul>
                             </div>
                         </v-flex>
-                        <v-flex grow xs12 sm12 md6 pr-5 style="display: inline-flex">
+                        <v-flex grow xs6 pr-5 style="display: inline-flex">
                             <div>
                                 <h2 class="title font-weight-regular">Tooltips</h2>
                                 <br>

@@ -33,8 +33,10 @@ export default {
 </script>
 
 <style lang="scss">
+
   html {
     overflow-y: paged-x!important;
+    /*font-family: 'Roboto';*/
   }
 
   #nav {

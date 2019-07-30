@@ -19,7 +19,7 @@
     "sass": "^1.21.0",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",
-    "vuetify": "^2.0.0-beta.4",
+    "vuetify": "^2.0.1",
     "vuex": "^3.0.1",
     "vuex-persistedstate": "^2.5.4"
   },

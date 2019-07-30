@@ -77,7 +77,7 @@
                 </v-list-item-group>
             </v-list>
         </v-navigation-drawer>
-        <v-app-bar dark app :color="navbarColor" clipped-left :scroll-off-screen=false>
+        <v-app-bar dark app :color="navbarColor" clipped-left :scroll-off-screen=false v-if="!isMobile && getUser.email">
             <v-app-bar-nav-icon @click="toggleDrawer">
                 <v-icon>
                     menu
@@ -100,7 +100,7 @@
             <v-spacer></v-spacer>
             <v-toolbar-items>
                 <v-btn text v-if="getUser.hasOwnProperty('email')" @click="signOut" class="caption">Sign Out</v-btn>
-                <v-btn text v-if="!getUser.hasOwnProperty('email')" @click="routeTo('/login', 'Login')" class="caption">Login</v-btn>
+                <v-btn text v-if="!getUser.hasOwnProperty('email') && this.$route.name !== 'Login'" @click="routeTo('/login', 'Login')" class="caption">Login</v-btn>
                 <v-btn text v-if="isDevelopment" @click="function(){ log(getUser); log(getUserDetails); log($store.state.cleanSettings)}" class="caption">Get User</v-btn>
                 <v-btn text v-if="isDevelopment" @click="clearUserAndDetails" class="caption">Clear User</v-btn>
                 <v-btn text v-if="isDevelopment" @click="setAccessLevel" class="caption">Access Level</v-btn>
@@ -117,7 +117,7 @@
                                 v-model="alert.active"
                                 top
                                 :color="alert.color"
-                                :timeout="0"
+                                :timeout="alert.timeout"
                         >
                             {{ alert.message }}
                             <v-btn
@@ -230,17 +230,13 @@
             this.log = common.log;
             this.snackbar = common.snackbar;
 
-            this.$on('openAlert', (msg) => {
+            this.$on('openSnackbar', (msg) => {
                 this.alert = {
                     active: true,
                     color: msg.color,
                     message: msg.alertMessage,
-                    timeout: 0
+                    timeout: msg.duration * 1000
                 };
-
-                setTimeout(() => {
-                    this.alert.active = false;
-                }, msg.duration * 1000);
             })
 
             firebase.auth().onAuthStateChanged((user) => {
@@ -282,6 +278,10 @@
             },
             isMobile() {
                 return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            },
+            hasUser() {
+                // alert (this.getUser === {});
+                return this.getUser !== {};
             }
         }
     }
